@@ -10,7 +10,8 @@ import { ref } from '@vue/reactivity';
 export default {
   setup() {
     const isClick=ref(false)
-    
+    let activeSprite=null
+    let spriteGroup=[]
     class Example extends Phaser.Scene
     {
       
@@ -41,7 +42,6 @@ export default {
           camera1.centerOn(0, 0)
           camera2.centerOn(0, 0)
           
-          let spriteGroup=[]
           let w=0;
           let h=0;
           for(let i=0; i<10000; i++) {
@@ -50,9 +50,10 @@ export default {
               w=0
               h++
             }
-            let sp=this.add.sprite(w*32, h*32, 'diamonds', spriteNo)
-            sp.setOrigin(0,0)
+            let sp=this.add.sprite(w*32+16, h*32+16, 'diamonds', spriteNo)
+            //sp.setOrigin(0,0)
             //sp.setAlpha(1-(1*h)/100)
+            sp.setInteractive();
             spriteGroup.push(sp)
             w++
           }
@@ -100,6 +101,10 @@ export default {
         //     }
 
         });
+        this.input.on('gameobjectover', function (pointer, gameObject) {
+          activeSprite=gameObject
+          console.log(spriteGroup[0]==gameObject)
+        });
         //this.input.enableDebug(container)
         // this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
         //   ///console.log(pointer)
@@ -112,8 +117,9 @@ export default {
           //   console.log(dragX, dragY)
 
           // })
-          // this.input.on("pointerdown",()=> {
-          //   console.log("클릭")
+          // this.input.on("pointerdown",(pointer, gameObject)=> {
+             
+          //   console.log(this.spriteGroup[0]==gameObject[0])
           // })
           // var cursors = this.input.keyboard.createCursorKeys();
 
@@ -155,6 +161,16 @@ export default {
         update(time, delta) {
            let pointer = this.input.activePointer;
            isClick.value=pointer.isDown
+           spriteGroup.forEach(sp => {
+             //console.log(sp.active)
+             if(sp!=activeSprite && sp.rotation!=0) {
+               sp.rotation-=.1
+
+             }
+           });
+
+          if(activeSprite!=null)
+            activeSprite.rotation += .1
           // Phaser.Actions.RotateAroundDistance([this.container], this.center, this.rotateSpeed, 250);
         //   const angleDeg = Math.atan2(this.container.y - this.center.y, this.container.x - this.center.x) * 180 / Math.PI;
         // this.container.angle = angleDeg+90 // container should face the center point
