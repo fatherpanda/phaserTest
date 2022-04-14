@@ -10,6 +10,7 @@ import { ref } from '@vue/reactivity';
 export default {
   setup() {
     const isClick=ref(false)
+<<<<<<< HEAD
     const mapList=[]
     const genInfo=()=> {
             let s=Math.ceil(Math.random()*2)
@@ -40,6 +41,10 @@ export default {
     const getMapPosition = (x, y) => {
       return [x*20+4,y*20+4]
     }
+=======
+    let activeSprite=null
+    let spriteGroup=[]
+>>>>>>> 7129ef62bda19f5573eda123ef2aca10b562cb8c
     class Example extends Phaser.Scene
     {
       
@@ -78,9 +83,9 @@ export default {
           camera1.centerOn(0, 0)
           camera2.centerOn(0, 0)
           
-          let spriteGroup=[]
           let w=0;
           let h=0;
+<<<<<<< HEAD
           const background=this.add.image(0,0,'background')
           background.setOrigin(0,0)
           const selectBox=this.add.rectangle(4, 4, 16, 16, '0xefc53f')
@@ -94,7 +99,18 @@ export default {
             let pos=getMapPosition(map.x, map.y)
             let sp=this.add.rectangle(pos[0], pos[1], 16, 16, map.color)
             sp.setOrigin(0,0)
+=======
+          for(let i=0; i<10000; i++) {
+            let spriteNo=i % 5
+            if(w==100) {
+              w=0
+              h++
+            }
+            let sp=this.add.sprite(w*32+16, h*32+16, 'diamonds', spriteNo)
+            //sp.setOrigin(0,0)
+            //sp.setAlpha(1-(1*h)/100)
             sp.setInteractive();
+>>>>>>> 7129ef62bda19f5573eda123ef2aca10b562cb8c
             spriteGroup.push(sp)
           }
 
@@ -170,8 +186,9 @@ export default {
           //   console.log(dragX, dragY)
 
           // })
-          // this.input.on("pointerdown",()=> {
-          //   console.log("클릭")
+          // this.input.on("pointerdown",(pointer, gameObject)=> {
+             
+          //   console.log(this.spriteGroup[0]==gameObject[0])
           // })
           // var cursors = this.input.keyboard.createCursorKeys();
 
