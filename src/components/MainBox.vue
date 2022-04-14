@@ -94,6 +94,7 @@ export default {
             let pos=getMapPosition(map.x, map.y)
             let sp=this.add.rectangle(pos[0], pos[1], 16, 16, map.color)
             sp.setOrigin(0,0)
+            sp.setInteractive();
             spriteGroup.push(sp)
           }
 
@@ -152,6 +153,10 @@ export default {
         //         text2.setText('Forward Button was released');
         //     }
 
+        });
+        this.input.on('gameobjectover', function (pointer, gameObject) {
+          activeSprite=gameObject
+          console.log(spriteGroup[0]==gameObject)
         });
         //this.input.enableDebug(container)
         // this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
@@ -217,6 +222,16 @@ export default {
           //    console.log(pointer.getDistanceX())
           //  }
            isClick.value=pointer.isDown
+           spriteGroup.forEach(sp => {
+             //console.log(sp.active)
+             if(sp!=activeSprite && sp.rotation!=0) {
+               sp.rotation-=.1
+
+             }
+           });
+
+          if(activeSprite!=null)
+            activeSprite.rotation += .1
           // Phaser.Actions.RotateAroundDistance([this.container], this.center, this.rotateSpeed, 250);
         //   const angleDeg = Math.atan2(this.container.y - this.center.y, this.container.x - this.center.x) * 180 / Math.PI;
         // this.container.angle = angleDeg+90 // container should face the center point
