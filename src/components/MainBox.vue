@@ -10,7 +10,36 @@ import { ref } from '@vue/reactivity';
 export default {
   setup() {
     const isClick=ref(false)
-    
+    const mapList=[]
+    const genInfo=()=> {
+            let s=Math.ceil(Math.random()*2)
+
+      let x=Math.floor(Math.random()*407)
+      let y=Math.floor(Math.random()*407)
+      var ex=x
+      var ey=y
+      let r=Math.floor(Math.random()*255).toString(16)
+      let g=Math.floor(Math.random()*255).toString(16)
+      let b=Math.floor(Math.random()*255).toString(16)
+
+
+      let info={
+        x:x,
+        y:y,
+        size:s,
+        ex:ex,
+        ey:ey,
+        color:"0x"+r+g+b
+      }
+      const fund=mapList.find(map => (map.x <= info.x && info.x <= map.ex) && (map.y <= info.y && info.y <= map.ey))
+      if(fund!=undefined) {
+        info=genInfo()
+      }
+      return info
+    }
+    const getMapPosition = (x, y) => {
+      return [x*20+4,y*20+4]
+    }
     class Example extends Phaser.Scene
     {
       
@@ -23,6 +52,14 @@ export default {
         preload ()
         {
             this.load.spritesheet('diamonds', '/src/assets/diamonds32x24x5.png', { frameWidth: 32, frameHeight: 24 });
+            this.load.image('background', '/src/assets/cell.png');
+            this.click=false
+            
+          for(let i=0; i<30000; i++) {
+            
+             mapList.push(genInfo())
+          }
+          console.log(mapList)
         }
 
         create ()
@@ -33,10 +70,10 @@ export default {
           //this.add.text(10, 10, 'Scroll your mouse-wheel up and down over the sprite', { font: '16px Courier', fill: '#00ff00' });
           //const layer=this.add.layer()
           const camera1=this.cameras.main
-          const camera2=this.cameras.add(0, 0, 3200, 3200)
+          const camera2=this.cameras.add(0, 0, 7328, 7328)
           let cameraZoom=2;
-          camera1.setBounds(0, 0, 3200, 3200)
-          camera2.setBounds(0, 0, 3200, 3200)
+          camera1.setBounds(0, 0, 7328, 7328)
+          camera2.setBounds(0, 0, 7328, 7328)
           camera1.setZoom(cameraZoom)
           camera1.centerOn(0, 0)
           camera2.centerOn(0, 0)
@@ -44,21 +81,26 @@ export default {
           let spriteGroup=[]
           let w=0;
           let h=0;
-          for(let i=0; i<10000; i++) {
-            let spriteNo=i % 5
-            if(w==100) {
-              w=0
-              h++
-            }
-            let sp=this.add.sprite(w*32, h*32, 'diamonds', spriteNo)
+          const background=this.add.image(0,0,'background')
+          background.setOrigin(0,0)
+          const selectBox=this.add.rectangle(4, 4, 16, 16, '0xefc53f')
+          selectBox.setOrigin(0,0)
+          selectBox.alpha=0
+          spriteGroup.push(background)
+          spriteGroup.push(selectBox)
+          console.time("test2");
+          for(let map of mapList)
+          {
+            let pos=getMapPosition(map.x, map.y)
+            let sp=this.add.rectangle(pos[0], pos[1], 16, 16, map.color)
             sp.setOrigin(0,0)
-            //sp.setAlpha(1-(1*h)/100)
             spriteGroup.push(sp)
-            w++
           }
+
+          console.timeEnd("test2");
           //layer.add(spriteGroup)
             const container1 = this.add.container(0, 0, spriteGroup)
-//            const container2 = this.add.container(0, 0, [text1]);
+            const container2 = this.add.container(0, 0, [text1]);
             camera1.ignore(text1)
             camera2.ignore(container1)
 
@@ -80,6 +122,17 @@ export default {
 
             if (pointer.leftButtonReleased())
             {
+              if(pointer.getDistanceX()===0 && pointer.getDistanceY()===0) {
+                let x=pointer.worldX
+                let y=pointer.worldY
+                let pos=getMapPosition(Math.floor(x/20), Math.floor(y/20))
+                let posx=pos[0]
+                let posy=pos[1]
+                selectBox.x=posx
+                selectBox.y=posy
+                selectBox.alpha=1
+            
+              }
                 ///text2.setText('Left Button was released');
             }
         //     else if (pointer.rightButtonReleased())
@@ -139,8 +192,9 @@ export default {
             //console.log(camera1,camera1.centerX,x_move)
             // camera1.x-=x_move
             if(isClick.value) {
-            camera1.scrollX +=x_move
-            camera1.scrollY +=y_move
+              //console.log(x_move, y_move)
+                camera1.scrollX +=x_move
+                camera1.scrollY +=y_move
             }
             var bbox = {
                 minX: pointer.x - 100,
@@ -154,6 +208,14 @@ export default {
       }
         update(time, delta) {
            let pointer = this.input.activePointer;
+           //console.log(pointer)
+          //  if(isClick.value==true) {
+          //     if(pointer.getDistanceX()===0 && pointer.getDistanceY()===0) {
+          //       this.selectBox.alpha=1
+          //     }
+             
+          //    console.log(pointer.getDistanceX())
+          //  }
            isClick.value=pointer.isDown
           // Phaser.Actions.RotateAroundDistance([this.container], this.center, this.rotateSpeed, 250);
         //   const angleDeg = Math.atan2(this.container.y - this.center.y, this.container.x - this.center.x) * 180 / Math.PI;
