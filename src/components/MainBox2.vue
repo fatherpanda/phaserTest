@@ -16,8 +16,8 @@ export default {
     let idx=0
     let info=[]
     let chkIdx=0
-    for(let i=1; i<=10; i++) {
-      info.push({idx:i, isStart:false,isEnd:false})
+    for(let i=0; i<=18; i++) {
+      info.push({idx:i+1, isStart:false,isEnd:false})
     }
     const spriteStore=SpriteStore()
     spriteStore.getSpriteList(info[0])
@@ -67,12 +67,7 @@ export default {
         preload ()
         {
             this.load.spritesheet('diamonds', '/src/assets/diamonds32x24x5.png', { frameWidth: 32, frameHeight: 24 });
-            this.load.image('background', '/src/assets/cell.png');
-            
-          // for(let i=0; i<30000; i++) {
-            
-          //    mapList.push(genInfo())
-          // }
+            this.load.image('background', '/src/assets/cell2.png');
         }
 
         create ()
@@ -82,23 +77,51 @@ export default {
           // const text2 = this.add.text(500, 10, '', { fill: '#ffffff' });
           //this.add.text(10, 10, 'Scroll your mouse-wheel up and down over the sprite', { font: '16px Courier', fill: '#00ff00' });
           //const layer=this.add.layer()
+          this.map = this.make.tilemap({ width: 408, height: 408, tileWidth: 20, tileHeight: 20 });
+          var tiles = this.map.addTilesetImage("background", null, 20,20)
+          var layer = this.map.createBlankLayer('layer1', tiles);
+          // map.fill(0, 0, 0, map.width, map.height);
+          layer.fill(0, 0, 0, this.map.width, this.map.height);
+          // layer.randomize(10, 10, 20, 20, [1,2,3,4])
+          // layer.randomize(10, 100, 20, 20, [1,2,3,4])
+          // layer.randomize(10, 200, 20, 20, [1,2,3,4])
+          // layer.randomize(100, 10, 20, 20, [1,2,3,4])
+          // layer.randomize(200, 10, 20, 20, [1,2,3,4])
+          // layer.randomize(300, 10, 20, 20, [1,2,3,4])
+          //layer.randomize(0, 0, this.map.width, this.map.height, [0,0,0,0,0,1,2,3,4])
+          layer.setOrigin(0,0)
+
           const camera1=this.cameras.main
-          const camera2=this.cameras.add(0, 0, 7328, 7328)
+          const camera2=this.cameras.add(0, 0, this.map.widthInPixels-20, this.map.heightInPixels-20)
           let cameraZoom=2;
-          camera1.setBounds(0, 0, 7328, 7328)
-          camera2.setBounds(0, 0, 7328, 7328)
+          camera1.setBounds(0, 0, this.map.widthInPixels-20, this.map.heightInPixels-20)
+           camera2.setBounds(0, 0, this.map.widthInPixels-20, this.map.heightInPixels-20)
           camera1.setZoom(cameraZoom)
           camera1.centerOn(0, 0)
           camera2.centerOn(0, 0)
           
+                  const cursors = this.input.keyboard.createCursorKeys();
+        const controlConfig = {
+            camera: this.cameras.main,
+            left: cursors.left,
+            right: cursors.right,
+            up: cursors.up,
+            down: cursors.down,
+            speed: 0.5
+        };
+        this.controls = new Phaser.Cameras.Controls.FixedKeyControl(controlConfig);
+
+
+          
+
           let w=0;
           let h=0;
-          const background=this.add.image(0,0,'background')
-          background.setOrigin(0,0)
+          // const background=this.add.image(0,0,'background')
+          // background.setOrigin(0,0)
           const selectBox=this.add.rectangle(4, 4, 16, 16, '0xefc53f')
           selectBox.setOrigin(0,0)
           selectBox.alpha=0
-          spriteGroup.push(background)
+          spriteGroup.push(this.map)
           spriteGroup.push(selectBox)
           console.time("test2");
           // for(let map of mapList)
@@ -111,10 +134,10 @@ export default {
 
           console.timeEnd("test2");
           //layer.add(spriteGroup)
-            this.container1 = this.add.container(0, 0, spriteGroup)
-            this.container2 = this.add.container(0, 0, [text1]);
+            // this.container1 = this.add.container(0, 0, spriteGroup)
+            // this.container2 = this.add.container(0, 0, [text1]);
             camera1.ignore(text1)
-            camera2.ignore(this.container1)
+            camera2.ignore(layer)
 
           this.input.mouse.disableContextMenu();
           this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY, deltaZ)=> {
@@ -123,11 +146,11 @@ export default {
               isUp=true
             }
             if(isUp)
-              cameraZoom=cameraZoom-.1
+              cameraZoom=cameraZoom-.05
             else 
-              cameraZoom=cameraZoom+.1
+              cameraZoom=cameraZoom+.05
               if(cameraZoom>2) cameraZoom=2
-              if(cameraZoom<.2) cameraZoom=.2
+              if(cameraZoom<.15) cameraZoom=.15
               camera1.setZoom(cameraZoom);
           })
          this.input.on('pointerup', function (pointer) {
@@ -205,10 +228,9 @@ export default {
             //  Update the search area
             let x_move=pointer.prevPosition.x-pointer.position.x
             let y_move=pointer.prevPosition.y-pointer.position.y
-            //console.log(camera1,camera1.centerX,x_move)
             // camera1.x-=x_move
             if(isClick.value) {
-              //console.log(x_move, y_move)
+              // console.log(x_move, y_move)
                 camera1.scrollX +=x_move
                 camera1.scrollY +=y_move
             }
@@ -224,6 +246,7 @@ export default {
       }
         update(time, delta) {
            let pointer = this.input.activePointer;
+           this.controls.update(delta);
            //console.log(pointer)
           //  if(isClick.value==true) {
           //     if(pointer.getDistanceX()===0 && pointer.getDistanceY()===0) {
@@ -232,31 +255,36 @@ export default {
              
           //    console.log(pointer.getDistanceX())
           //  }
+
+
+const infoChk=info.filter((i)=>i.isStart==false || i.end==false)
+          if(infoChk.length>0) {
           const spriteL= spriteList.value.filter((sptire)=>sptire.isScreen==false)
           if(spriteL.length>0) {
-            let max=814
-            if(spriteL.length<max) max=spriteL.length
+            let max=spriteL.length
             for(let i=0; i<max; i++) {
               spriteL[i].isScreen=true
+              this.map.putTileAt(spriteL[i].tile, spriteL[i].x, spriteL[i].y);
               //console.log(spriteL[i])
-              let pos=getMapPosition(spriteL[i].x, spriteL[i].y)
-              let sp=this.add.rectangle(pos[0], pos[1], 16, 16, spriteL[i].color)
-              sp.setOrigin(0,0)
-              this.container1.add(sp)
-              spriteGroup.push(sp)
+              // let pos=getMapPosition(spriteL[i].x, spriteL[i].y)
+              // let sp=this.add.rectangle(pos[0], pos[1], 16, 16, spriteL[i].color)
+              // sp.setOrigin(0,0)
+              // this.container1.add(sp)
+              // spriteGroup.push(sp)
             }
           }
-//           } else {
-//             if(info.length-1>idx) {
-//             info[idx].isEnd=true
-//             idx++
-//             console.log(info.length+"=="+idx)
-//             if(info[idx].isStart==false) {
-//               spriteStore.getSpriteList(info[idx])
-//             }
-//             }
+           else {
+            if(info.length-1>idx) {
+            info[idx].isEnd=true
+            idx++
+            console.log(info.length+"=="+idx)
+            if(info[idx].isStart==false) {
+              spriteStore.getSpriteList(info[idx])
+            }
+            }
 // //            chkIdx++
-//           }
+           }
+          }
 
            isClick.value=pointer.isDown
            spriteGroup.forEach(sp => {
@@ -281,8 +309,8 @@ export default {
     }
     const config = {
         type: Phaser.WEBGL,
-        width: 1024,
-        height: 768,
+        width: 1280,
+        height: 1024,
         backgroundColor: '#2d2d2d',
         parent: 'phaser-example',
         scene: [ Example ]

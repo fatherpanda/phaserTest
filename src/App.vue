@@ -1,12 +1,13 @@
 <template>
-<img src="./assets/diamonds32x24x5.png" alt="">
-  <main-box></main-box>
+  <main-box3></main-box3>
 </template>
 <script>
-import mainBox from "./components/MainBox.vue"
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.esm'
+import mainBox3 from "./components/MainBox3.vue"
 export default {
   components:{
-    mainBox
+    mainBox3
   },
   setup() {
     
